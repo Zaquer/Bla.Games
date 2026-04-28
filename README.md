@@ -1,5 +1,5 @@
 # Bla.Games
-repositorio de bla
+Repositorio para juegos de texto de terminal de Bla Games.
 
 ## Proyectos por -Zaquer:
 Bla Souls,
