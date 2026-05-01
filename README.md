@@ -2,6 +2,7 @@
 Repositorio para juegos de texto de terminal de Bla Games.
 
 ## Proyectos por -Zaquer:
+The Last Candle,
 Bla Souls,
 Bla
 ## Proyectos por -210941:
