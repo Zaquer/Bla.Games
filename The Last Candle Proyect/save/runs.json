@@ -1,0 +1,66 @@
+[
+  {
+    "run_number": 1,
+    "seed": 680387,
+    "player_class": "soldado_roto",
+    "player_name": "Soldado Roto",
+    "depth_reached": 3,
+    "rooms_explored": 3,
+    "kills": 1,
+    "gold_collected": 10,
+    "cause_of_death": "sanity",
+    "victory": false,
+    "flags_set": [
+      "rezó_al_vacío",
+      "_death_room_type"
+    ],
+    "items_carried": [],
+    "equipment_worn": {},
+    "timestamp": "2026-04-19 13:22",
+    "duration_secs": 46
+  },
+  {
+    "run_number": 2,
+    "seed": 859128,
+    "player_class": "flagelante",
+    "player_name": "Flagelante",
+    "depth_reached": 3,
+    "rooms_explored": 3,
+    "kills": 0,
+    "gold_collected": 7,
+    "cause_of_death": "sanity",
+    "victory": false,
+    "flags_set": [
+      "abraza_el_dolor",
+      "_death_room_type"
+    ],
+    "items_carried": [],
+    "equipment_worn": {
+      "trinket": "diente_del_ahorcado"
+    },
+    "timestamp": "2026-04-19 13:23",
+    "duration_secs": 52
+  },
+  {
+    "run_number": 3,
+    "seed": 105027,
+    "player_class": "soldado_roto",
+    "player_name": "Soldado Roto",
+    "depth_reached": 3,
+    "rooms_explored": 3,
+    "kills": 0,
+    "gold_collected": 21,
+    "cause_of_death": "sanity",
+    "victory": false,
+    "flags_set": [
+      "_death_room_type"
+    ],
+    "items_carried": [
+      "pocion_sangre",
+      "vendaje_sucio"
+    ],
+    "equipment_worn": {},
+    "timestamp": "2026-04-19 13:36",
+    "duration_secs": 40
+  }
+]
