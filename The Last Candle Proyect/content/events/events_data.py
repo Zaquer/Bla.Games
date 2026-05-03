@@ -903,6 +903,590 @@ EVENTS: list[dict] = [
         ],
     },
 
+    # ------------------------------------------------------------------ #
+    #  EL REENCUENTRO                                                       #
+    #  Usa: tiene_aliado_potencial (prisionero liberado)                    #
+    #  Primera vez que ese flag tiene consecuencias reales.                 #
+    # ------------------------------------------------------------------ #
+    {
+        "id": "el_reencuentro",
+        "name": "El Reencuentro",
+        "flavor_text": (
+            "Una figura en las sombras. "
+            "La reconoces — es el prisionero que liberaste. "
+            "Parece que encontró un camino. "
+            "Parece que te estaba esperando."
+        ),
+        "conditions": {
+            "min_depth": 2,
+            "required_flags": ["tiene_aliado_potencial"],
+            "forbidden_flags": ["usó_al_aliado"],
+        },
+        "choices": [
+            {
+                "id": "ir_juntos",
+                "text": "Ofrecerle ir juntos. Dos sobreviven mejor que uno.",
+                "tag": None,
+                "visible_if": {"required_flags": [], "forbidden_flags": []},
+                "consequences": {
+                    "hp": 8,
+                    "sanity": 5,
+                    "gold": 0,
+                    "set_flags": {"usó_al_aliado": True, "fue_con_el_aliado": True},
+                    "clear_flags": [],
+                    "outcome": (
+                        "Camináis juntos un trecho. "
+                        "Conoce el dungeon mejor que tú. "
+                        "Os separan en el siguiente cruce, pero antes te vendó las heridas "
+                        "y te contó dónde estaban las trampas."
+                    ),
+                },
+            },
+            {
+                "id": "pedirle_informacion",
+                "text": "Preguntarle qué sabe del dungeon antes de seguir solos.",
+                "tag": None,
+                "visible_if": {"required_flags": [], "forbidden_flags": []},
+                "consequences": {
+                    "hp": 0,
+                    "sanity": 3,
+                    "gold": 10,
+                    "set_flags": {"usó_al_aliado": True, "tiene_mapa_mental": True},
+                    "clear_flags": [],
+                    "outcome": (
+                        "Habla rápido. Hay un depósito en la siguiente capa, "
+                        "y una sala que conviene evitar a toda costa. "
+                        "También tiene monedas que no necesita. "
+                        "Las acepta quien las necesita más."
+                    ),
+                },
+            },
+            {
+                "id": "seguir_solo",
+                "text": "Decirle que cada uno va por su cuenta.",
+                "tag": None,
+                "visible_if": {"required_flags": [], "forbidden_flags": []},
+                "consequences": {
+                    "hp": 0,
+                    "sanity": -1,
+                    "gold": 0,
+                    "set_flags": {"usó_al_aliado": True, "rechazó_al_aliado": True},
+                    "clear_flags": [],
+                    "outcome": (
+                        "Asiente. No parece sorprendido. "
+                        "Desaparece en la oscuridad sin mirar atrás. "
+                        "Probablemente sea lo más sensato."
+                    ),
+                },
+            },
+        ],
+    },
+
+    # ------------------------------------------------------------------ #
+    #  EL ECO DE LO QUE HICISTE                                            #
+    #  Usa: tiene_sangre_inocente + abandonó_al_prisionero                 #
+    #  Solo aparece si el jugador tomó decisiones oscuras.                  #
+    # ------------------------------------------------------------------ #
+    {
+        "id": "eco_de_lo_que_hiciste",
+        "name": "El Eco",
+        "flavor_text": (
+            "No hay nada en esta sala. "
+            "Solo un charco de agua en el suelo que refleja algo "
+            "que no está encima de él."
+        ),
+        "conditions": {
+            "min_depth": 2,
+            "required_flags": [],
+            "forbidden_flags": ["vio_el_eco"],
+        },
+        "choices": [
+            {
+                "id": "mirar_el_reflejo",
+                "text": "Mirar lo que muestra el charco.",
+                "tag": None,
+                "visible_if": {"required_flags": [], "forbidden_flags": []},
+                "consequences": {
+                    "hp": 0,
+                    "sanity": -2,
+                    "gold": 0,
+                    "set_flags": {"vio_el_eco": True},
+                    "clear_flags": [],
+                    "outcome": (
+                        "Ves lo que hiciste. "
+                        "No lo que crees que hiciste — lo que realmente ocurrió. "
+                        "La diferencia es pequeña. "
+                        "Eso es lo peor."
+                    ),
+                },
+            },
+            {
+                "id": "mirar_culpa",
+                "text": "Mirar. Lo mereces.",
+                "tag": "[SANGRE INOCENTE]",
+                "visible_if": {
+                    "required_flags": ["tiene_sangre_inocente"],
+                    "forbidden_flags": [],
+                },
+                "consequences": {
+                    "hp": -3,
+                    "sanity": 5,
+                    "gold": 0,
+                    "set_flags": {"vio_el_eco": True, "asumió_la_culpa": True},
+                    "clear_flags": ["tiene_sangre_inocente"],
+                    "outcome": (
+                        "Lo miras hasta que duele. "
+                        "No se borra. Pero algo en ti se asienta. "
+                        "La culpa que se mira de frente pesa menos que la que se evita."
+                    ),
+                },
+            },
+            {
+                "id": "romper_el_charco",
+                "text": "Pisarlo. No necesitas ver eso.",
+                "tag": None,
+                "visible_if": {"required_flags": [], "forbidden_flags": []},
+                "consequences": {
+                    "hp": 0,
+                    "sanity": 1,
+                    "gold": 0,
+                    "set_flags": {"vio_el_eco": True, "rompió_el_eco": True},
+                    "clear_flags": [],
+                    "outcome": (
+                        "El agua se dispersa. La imagen desaparece. "
+                        "Lo que hiciste no."
+                    ),
+                },
+            },
+        ],
+    },
+
+    # ------------------------------------------------------------------ #
+    #  EL MERCADER SIN ROSTRO                                              #
+    #  Aparece en cualquier profundidad. Compra cosas raras.               #
+    #  Primera vez que el oro tiene un uso narrativo más allá de items.    #
+    # ------------------------------------------------------------------ #
+    {
+        "id": "mercader_sin_rostro",
+        "name": "El Mercader Sin Rostro",
+        "flavor_text": (
+            "Hay alguien sentado junto a una vela. "
+            "Vende cosas. No tiene cara — solo un lienzo en blanco "
+            "donde debería haber una. "
+            "Esto no te sorprende tanto como debería."
+        ),
+        "conditions": {
+            "min_depth": 1,
+            "required_flags": [],
+            "forbidden_flags": ["trató_con_el_mercader"],
+        },
+        "choices": [
+            {
+                "id": "comprar_calma",
+                "text": "Comprar calma. (15 oro → +8 Cordura)",
+                "tag": None,
+                "visible_if": {"required_flags": [], "forbidden_flags": []},
+                "consequences": {
+                    "hp": 0,
+                    "sanity": 8,
+                    "gold": -15,
+                    "set_flags": {"trató_con_el_mercader": True},
+                    "clear_flags": [],
+                    "outcome": (
+                        "Te entrega un frasco de nada. "
+                        "Lo bebes. Sabe a silencio. "
+                        "Funciona de todos modos."
+                    ),
+                },
+            },
+            {
+                "id": "comprar_fuerza",
+                "text": "Comprar fuerza prestada. (20 oro → +10 HP)",
+                "tag": None,
+                "visible_if": {"required_flags": [], "forbidden_flags": []},
+                "consequences": {
+                    "hp": 10,
+                    "sanity": -2,
+                    "gold": -20,
+                    "set_flags": {"trató_con_el_mercader": True, "fuerza_prestada": True},
+                    "clear_flags": [],
+                    "outcome": (
+                        "Lo que te entrega no es un objeto. "
+                        "Es una sensación. "
+                        "Vitalidad que no era tuya. "
+                        "Alguien en algún lugar acaba de sentirse peor."
+                    ),
+                },
+            },
+            {
+                "id": "vender_recuerdo",
+                "text": "Venderle algo que no quieres recordar.",
+                "tag": "[LADRÓN]",
+                "visible_if": {
+                    "required_flags": [],
+                    "forbidden_flags": [],
+                    # Opción estética para el Ladrón, pero visible para todos
+                    # — el Ladrón tiene más práctica vendiendo lo que no es suyo
+                },
+                "consequences": {
+                    "hp": 0,
+                    "sanity": 4,
+                    "gold": 18,
+                    "set_flags": {"trató_con_el_mercader": True, "vendió_un_recuerdo": True},
+                    "clear_flags": [],
+                    "outcome": (
+                        "Acepta. Te paga. "
+                        "Unos pasos después intentas recordar qué vendiste "
+                        "y no puedes. "
+                        "Eso también es un servicio."
+                    ),
+                },
+            },
+            {
+                "id": "ignorar_mercader",
+                "text": "Ignorarlo y seguir.",
+                "tag": None,
+                "visible_if": {"required_flags": [], "forbidden_flags": []},
+                "consequences": {
+                    "hp": 0,
+                    "sanity": 0,
+                    "gold": 0,
+                    "set_flags": {"trató_con_el_mercader": True},
+                    "clear_flags": [],
+                    "outcome": (
+                        "No reacciona. "
+                        "Cuando miras atrás, ya no está. "
+                        "La vela tampoco."
+                    ),
+                },
+            },
+        ],
+    },
+
+    # ------------------------------------------------------------------ #
+    #  EL SUEÑO LÚCIDO                                                     #
+    #  depth 3+. Evento de clase — cada clase tiene una opción exclusiva.  #
+    #  El Soldado Roto y el Ladrón por fin tienen presencia narrativa.     #
+    # ------------------------------------------------------------------ #
+    {
+        "id": "sueno_lucido",
+        "name": "El Sueño Lúcido",
+        "flavor_text": (
+            "El dungeon desaparece un momento. "
+            "Estás en algún lugar que reconoces — antes de todo esto. "
+            "Sabes que es un sueño. "
+            "También sabes que cuando despiertes algo habrá cambiado."
+        ),
+        "conditions": {
+            "min_depth": 3,
+            "required_flags": [],
+            "forbidden_flags": ["tuvo_el_sueño"],
+        },
+        "choices": [
+            {
+                "id": "quedarse_en_el_sueño",
+                "text": "Quedarse. Solo un poco más.",
+                "tag": None,
+                "visible_if": {"required_flags": [], "forbidden_flags": []},
+                "consequences": {
+                    "hp": 6,
+                    "sanity": 6,
+                    "gold": 0,
+                    "set_flags": {"tuvo_el_sueño": True, "eligió_quedarse": True},
+                    "clear_flags": [],
+                    "outcome": (
+                        "Descansas de verdad por primera vez. "
+                        "Cuando despiertas, el dungeon sigue igual. "
+                        "Tú, no del todo."
+                    ),
+                },
+            },
+            {
+                "id": "sueño_soldado",
+                "text": "Recordar por qué empezaste. Usarlo.",
+                "tag": "[SOLDADO]",
+                "visible_if": {
+                    "required_flags": [],
+                    "forbidden_flags": ["marcado_por_el_vacio", "abraza_el_dolor"],
+                },
+                "consequences": {
+                    "hp": 4,
+                    "sanity": 0,
+                    "gold": 0,
+                    "set_flags": {"tuvo_el_sueño": True, "recordó_el_origen": True},
+                    "clear_flags": [],
+                    "outcome": (
+                        "Recuerdas el rostro de alguien. "
+                        "No su nombre — eso lo perdiste hace tiempo. "
+                        "Pero el rostro es suficiente. "
+                        "Te despiertas con los puños apretados y el paso firme."
+                    ),
+                },
+            },
+            {
+                "id": "sueño_hereje",
+                "text": "Hablar con lo que vive en el sueño.",
+                "tag": "[HEREJE]",
+                "visible_if": {
+                    "required_flags": ["marcado_por_el_vacio"],
+                    "forbidden_flags": [],
+                },
+                "consequences": {
+                    "hp": -2,
+                    "sanity": 0,
+                    "gold": 0,
+                    "set_flags": {
+                        "tuvo_el_sueño": True,
+                        "habló_con_el_vacío_en_sueños": True,
+                    },
+                    "clear_flags": [],
+                    "outcome": (
+                        "Está ahí. Como siempre. "
+                        "Te dice algo que no puedes repetir. "
+                        "Cuando despiertas, sabes exactamente qué hay en la siguiente sala. "
+                        "No sabes cómo lo sabes."
+                    ),
+                },
+            },
+            {
+                "id": "sueño_flagelante",
+                "text": "Convertir el dolor del sueño en combustible.",
+                "tag": "[FLAGELANTE]",
+                "visible_if": {
+                    "required_flags": ["abraza_el_dolor"],
+                    "forbidden_flags": [],
+                },
+                "consequences": {
+                    "hp": -4,
+                    "sanity": 8,
+                    "gold": 0,
+                    "set_flags": {"tuvo_el_sueño": True, "dolor_convertido": True},
+                    "clear_flags": [],
+                    "outcome": (
+                        "En el sueño te golpeas contra las paredes "
+                        "hasta que el dolor se vuelve claridad. "
+                        "Despiertas sangrando. "
+                        "La mente, sin embargo, está quieta."
+                    ),
+                },
+            },
+        ],
+    },
+
+    # ------------------------------------------------------------------ #
+    #  EL JUICIO                                                           #
+    #  depth 4+. Evento de convergencia — usa flags acumulados.            #
+    #  El dungeon recuerda lo que hiciste.                                 #
+    # ------------------------------------------------------------------ #
+    {
+        "id": "el_juicio",
+        "name": "La Sala del Juicio",
+        "flavor_text": (
+            "Una sala circular. En el centro, una balanza de piedra. "
+            "Los platillos se mueven solos. "
+            "No hay nadie más aquí, pero alguien te está mirando."
+        ),
+        "conditions": {
+            "min_depth": 4,
+            "required_flags": [],
+            "forbidden_flags": ["fue_juzgado"],
+        },
+        "choices": [
+            {
+                "id": "juicio_aceptar",
+                "text": "Acercarse a la balanza. Dejar que decida.",
+                "tag": None,
+                "visible_if": {"required_flags": [], "forbidden_flags": []},
+                "consequences": {
+                    "hp": 0,
+                    "sanity": -3,
+                    "gold": 0,
+                    "set_flags": {"fue_juzgado": True, "aceptó_el_juicio": True},
+                    "clear_flags": [],
+                    "outcome": (
+                        "La balanza se inclina. "
+                        "No ves hacia qué lado. "
+                        "Eso también es una respuesta."
+                    ),
+                },
+            },
+            {
+                "id": "juicio_culpable",
+                "text": "Declararte culpable antes de que lo haga ella.",
+                "tag": "[SANGRE INOCENTE]",
+                "visible_if": {
+                    "required_flags": ["tiene_sangre_inocente"],
+                    "forbidden_flags": [],
+                },
+                "consequences": {
+                    "hp": -5,
+                    "sanity": 8,
+                    "gold": 0,
+                    "set_flags": {
+                        "fue_juzgado": True,
+                        "se_declaró_culpable": True,
+                    },
+                    "clear_flags": ["tiene_sangre_inocente"],
+                    "outcome": (
+                        "La balanza se detiene. "
+                        "Como si no esperara eso. "
+                        "El dolor es real. "
+                        "La cordura que recuperas también."
+                    ),
+                },
+            },
+            {
+                "id": "juicio_inocente",
+                "text": "Declararte inocente. Sostener la mirada.",
+                "tag": None,
+                "visible_if": {
+                    "required_flags": [],
+                    "forbidden_flags": ["tiene_sangre_inocente", "mató_al_prisionero"],
+                },
+                "consequences": {
+                    "hp": 5,
+                    "sanity": 5,
+                    "gold": 0,
+                    "set_flags": {"fue_juzgado": True, "se_declaró_inocente": True},
+                    "clear_flags": [],
+                    "outcome": (
+                        "La balanza no se mueve. "
+                        "Quizás eso sea ganar. "
+                        "Quizás la balanza no funciona y esto no significa nada. "
+                        "De cualquier modo, el camino sigue."
+                    ),
+                },
+            },
+            {
+                "id": "juicio_ignorar",
+                "text": "Pasar por delante sin mirar. No reconoces su autoridad.",
+                "tag": None,
+                "visible_if": {"required_flags": [], "forbidden_flags": []},
+                "consequences": {
+                    "hp": -2,
+                    "sanity": -2,
+                    "gold": 5,
+                    "set_flags": {"fue_juzgado": True, "ignoró_el_juicio": True},
+                    "clear_flags": [],
+                    "outcome": (
+                        "La balanza se vuelca al pasar. "
+                        "Algo cae al suelo — monedas. "
+                        "De dónde venían, no prefieres saberlo."
+                    ),
+                },
+            },
+        ],
+    },
+
+    # ------------------------------------------------------------------ #
+    #  EL ÚLTIMO ESPEJO                                                    #
+    #  depth 5. Evento final antes del boss.                               #
+    #  Usa casi todo lo acumulado. Sin opciones incorrectas.               #
+    # ------------------------------------------------------------------ #
+    {
+        "id": "el_ultimo_espejo",
+        "name": "El Último Espejo",
+        "flavor_text": (
+            "Otro espejo. Pero este no está roto. "
+            "Y tu reflejo eres tú — exactamente tú, "
+            "con todo lo que llevas encima. "
+            "Dice: 'Queda una sala.'"
+        ),
+        "conditions": {
+            "min_depth": 5,
+            "required_flags": [],
+            "forbidden_flags": ["vio_el_último_espejo"],
+        },
+        "choices": [
+            {
+                "id": "prepararse",
+                "text": "Prepararte. Lo que sea que venga, lo recibes.",
+                "tag": None,
+                "visible_if": {"required_flags": [], "forbidden_flags": []},
+                "consequences": {
+                    "hp": 4,
+                    "sanity": 4,
+                    "gold": 0,
+                    "set_flags": {"vio_el_último_espejo": True, "entró_preparado": True},
+                    "clear_flags": [],
+                    "outcome": (
+                        "El reflejo asiente. "
+                        "Por primera vez en todo el dungeon, "
+                        "algo te mira sin querer algo a cambio."
+                    ),
+                },
+            },
+            {
+                "id": "preguntar_al_reflejo",
+                "text": "Preguntarle si hay algo al otro lado.",
+                "tag": None,
+                "visible_if": {
+                    "required_flags": [],
+                    "forbidden_flags": ["espejo_destruido"],
+                },
+                "consequences": {
+                    "hp": 0,
+                    "sanity": 3,
+                    "gold": 0,
+                    "set_flags": {
+                        "vio_el_último_espejo": True,
+                        "sabe_lo_que_hay_al_otro_lado": True,
+                    },
+                    "clear_flags": [],
+                    "outcome": (
+                        "Responde: 'Lo mismo que aquí, pero sin ti.' "
+                        "No es una amenaza. "
+                        "Tampoco un consuelo. "
+                        "Es la única respuesta honesta que has recibido."
+                    ),
+                },
+            },
+            {
+                "id": "romper_este_espejo",
+                "text": "Romperlo. Ya rompiste el otro.",
+                "tag": "[ESPEJO DESTRUIDO]",
+                "visible_if": {
+                    "required_flags": ["espejo_destruido"],
+                    "forbidden_flags": [],
+                },
+                "consequences": {
+                    "hp": -1,
+                    "sanity": 6,
+                    "gold": 0,
+                    "set_flags": {
+                        "vio_el_último_espejo": True,
+                        "rompió_ambos_espejos": True,
+                    },
+                    "clear_flags": [],
+                    "outcome": (
+                        "Cae diferente. Sin resistencia. "
+                        "Como si también lo estuviera esperando. "
+                        "Los fragmentos no reflejan nada. "
+                        "Por fin."
+                    ),
+                },
+            },
+            {
+                "id": "dar_la_vuelta",
+                "text": "Darle la espalda y entrar ya.",
+                "tag": None,
+                "visible_if": {"required_flags": [], "forbidden_flags": []},
+                "consequences": {
+                    "hp": 2,
+                    "sanity": 0,
+                    "gold": 0,
+                    "set_flags": {"vio_el_último_espejo": True},
+                    "clear_flags": [],
+                    "outcome": (
+                        "No necesitas un espejo para saber quién eres. "
+                        "O ya no te importa saberlo. "
+                        "Ambas son respuestas válidas a estas alturas."
+                    ),
+                },
+            },
+        ],
+    },
+
 ]
 
 

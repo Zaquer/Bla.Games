@@ -62,5 +62,73 @@
     "equipment_worn": {},
     "timestamp": "2026-04-19 13:36",
     "duration_secs": 40
+  },
+  {
+    "run_number": 4,
+    "seed": 860164,
+    "player_class": "hereje",
+    "player_name": "Hereje",
+    "depth_reached": 3,
+    "rooms_explored": 3,
+    "kills": 0,
+    "gold_collected": 2,
+    "cause_of_death": "killed_by:el Señor de las Profundidades",
+    "victory": false,
+    "flags_set": [
+      "marcado_por_el_vacio",
+      "pacto_con_el_altar",
+      "el_vacío_escucha",
+      "_death_room_type"
+    ],
+    "items_carried": [],
+    "equipment_worn": {},
+    "timestamp": "2026-05-03 15:01",
+    "duration_secs": 56
+  },
+  {
+    "run_number": 5,
+    "seed": 296907,
+    "player_class": "soldado_roto",
+    "player_name": "Soldado Roto",
+    "depth_reached": 3,
+    "rooms_explored": 3,
+    "kills": 0,
+    "gold_collected": 5,
+    "cause_of_death": "killed_by:el Señor de las Profundidades",
+    "victory": false,
+    "flags_set": [
+      "liberó_al_prisionero",
+      "tiene_aliado_potencial",
+      "_death_room_type"
+    ],
+    "items_carried": [],
+    "equipment_worn": {},
+    "timestamp": "2026-05-03 15:10",
+    "duration_secs": 60
+  },
+  {
+    "run_number": 6,
+    "seed": 777162,
+    "player_class": "soldado_roto",
+    "player_name": "Soldado Roto",
+    "depth_reached": 3,
+    "rooms_explored": 3,
+    "kills": 0,
+    "gold_collected": 39,
+    "cause_of_death": "killed_by:el Señor de las Profundidades",
+    "victory": false,
+    "flags_set": [
+      "trató_con_el_mercader",
+      "vendió_un_recuerdo",
+      "_death_room_type"
+    ],
+    "items_carried": [
+      "fragmento_cordura"
+    ],
+    "equipment_worn": {
+      "armor": "cota_rota"
+    },
+    "timestamp": "2026-05-03 15:17",
+    "duration_secs": 71
   }
 ]

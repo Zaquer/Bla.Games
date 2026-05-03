@@ -414,6 +414,27 @@ def _resolve_player_attack(state: CombatState, rng: random.Random,
         state.log(f"[{STATUS_COLORS[ab['applies_status_enemy']]}]"
                   f"Aplicas {STATUS_LABELS[ab['applies_status_enemy']]} al enemigo.[/]")
 
+    # Aguja del Marcador: ataques básicos aplican MARKED automáticamente
+    if not ability_id:
+        weapon_id = player.equipment.get("weapon")
+        if weapon_id:
+            from content.items.items_data import get_item as _gi
+            weapon = _gi(weapon_id)
+            if weapon and weapon.get("equip_effect", {}).get("attack_applies_marked"):
+                state.apply_status_to_enemy("MARKED", duration=2)
+                state.log(f"[magenta]Aguja del Marcador — MARKED aplicado.[/magenta]")
+
+    # Collar de Dientes: si el enemigo cae, restaura cordura
+    if state.enemy_hp <= 0:
+        trinket_id = player.equipment.get("trinket")
+        if trinket_id:
+            from content.items.items_data import get_item as _gi2
+            trinket = _gi2(trinket_id)
+            restore = trinket.get("equip_effect", {}).get("kill_restores_sanity", 0) if trinket else 0
+            if restore:
+                gained = player.restore_sanity(restore)
+                state.log(f"[cyan]Collar de Dientes — +{gained} Cordura.[/cyan]")
+
     # Log
     crit_str = "  [bold yellow]¡CRÍTICO![/bold yellow]" if is_crit else ""
     ab_name  = ab["display"] if ability_id else "Ataque"
@@ -444,18 +465,47 @@ def _resolve_enemy_action(state: CombatState, rng: random.Random) -> None:
 
     # Daño físico
     if action["dmg_mult"] > 0:
-        dmg = _enemy_damage(enemy, action["dmg_mult"], rng)
+        # Larva Abismal: escala daño con el turno actual
+        turn_mult = 1.0
+        if action.get("scales_with_turns"):
+            turn_mult = 1.0 + (state.turn - 1) * 0.15
+            if turn_mult > 1.0:
+                state.log(f"[dim red]La larva crece con cada turno (×{turn_mult:.1f}).[/dim red]")
+
+        dmg = _enemy_damage(enemy, action["dmg_mult"] * turn_mult, rng)
+
+        # Cap sistémico: ningún golpe puede superar el 55% del HP máximo.
+        # Evita one-shots desde HP completo — el jugador siempre tiene al menos
+        # un turno para reaccionar.
+        dmg_cap = max(1, int(player.hp_max * 0.55))
+        dmg = min(dmg, dmg_cap)
 
         # Reducir si el jugador está defendiendo
         if state.player_defending:
             dmg = max(1, dmg - player.agility)
             state.log(f"[dim white]Defensa reduce el golpe.[/dim white]")
 
+        # Cota del Mártir: -2 daño cuando HP < 40%
+        armor_id = player.equipment.get("armor")
+        if armor_id:
+            from content.items.items_data import get_item as _gi3
+            armor = _gi3(armor_id)
+            if armor and armor.get("equip_effect", {}).get("low_hp_defense"):
+                if player.hp / player.hp_max < 0.40:
+                    dmg = max(1, dmg - 2)
+                    state.log(f"[dim white]Cota del Mártir absorbe 2 de daño.[/dim white]")
+
         player.take_damage(dmg)
         state.log(f"[{C['danger']}]◀ {enemy['name']} {action['text']}[/{C['danger']}] → "
                   f"[bold]{dmg}[/bold] de daño.")
     else:
         state.log(f"[{C['danger']}]◀ {enemy['name']} {action['text']}.[/{C['danger']}]")
+
+    # Curación propia del enemigo (Sacerdote Corrompido)
+    if action.get("self_heal", 0) > 0:
+        healed = min(action["self_heal"], state.enemy_hp_max - state.enemy_hp)
+        state.enemy_hp += healed
+        state.log(f"[green]◀ {enemy['name']} se cura {healed} HP.[/green]")
 
     # Daño de cordura
     if action["sanity_dmg"] > 0:

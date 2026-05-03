@@ -147,20 +147,59 @@ def use_item(player, item_id: str) -> tuple[bool, str]:
     effect = item.get("use_effect", {})
     msgs   = []
 
+    # --- Elixir del Azar: apuesta pura ---
+    if effect.get("gamble"):
+        import random
+        if random.random() < 0.5:
+            gained = player.heal(14)
+            msgs.append(f"[green]+{gained} HP — suerte.[/green]")
+        else:
+            player.take_damage(10)
+            msgs.append(f"[red]-10 HP — mala suerte.[/red]")
+        player.inventory.remove(item_id)
+        return True, f"Usas [{item['name']}] → {'  ·  '.join(msgs)}"
+
+    # --- Ceniza de Moneda: quema oro para curar ---
+    if effect.get("gold_to_hp"):
+        cost = abs(effect.get("gold", -10))
+        if player.gold < cost:
+            return False, f"No tienes suficiente oro ({cost} necesario, tienes {player.gold})."
+        player.gold -= cost
+        gained_hp  = player.heal(8)
+        gained_san = player.restore_sanity(3)
+        msgs.append(f"-{cost} oro  ·  +{gained_hp} HP  ·  +{gained_san} Cordura")
+        player.inventory.remove(item_id)
+        return True, f"Usas [{item['name']}] → {'  ·  '.join(msgs)}"
+
+    # --- Lágrima del Abismo: elimina todos los estados ---
+    if effect.get("remove_all_status"):
+        # Los estados se gestionan en CombatState, no en player directamente.
+        # Fuera de combate no hay estados activos, así que solo aplicamos HP/SAN.
+        hp_delta     = effect.get("hp", 0)
+        sanity_delta = effect.get("sanity", 0)
+        if hp_delta > 0:
+            msgs.append(f"+{player.heal(hp_delta)} HP")
+        if sanity_delta > 0:
+            msgs.append(f"+{player.restore_sanity(sanity_delta)} Cordura")
+        msgs.append("Estados eliminados")
+        for flag, val in effect.get("set_flags", {}).items():
+            player.set_flag(flag, val)
+        player.inventory.remove(item_id)
+        return True, f"Usas [{item['name']}] → {'  ·  '.join(msgs)}"
+
+    # --- Consumibles estándar ---
     hp_delta     = effect.get("hp", 0)
     sanity_delta = effect.get("sanity", 0)
     gold_delta   = effect.get("gold", 0)
 
     if hp_delta > 0:
-        gained = player.heal(hp_delta)
-        msgs.append(f"+{gained} HP")
+        msgs.append(f"+{player.heal(hp_delta)} HP")
     elif hp_delta < 0:
         player.take_damage(abs(hp_delta))
         msgs.append(f"{hp_delta} HP")
 
     if sanity_delta > 0:
-        gained = player.restore_sanity(sanity_delta)
-        msgs.append(f"+{gained} Cordura")
+        msgs.append(f"+{player.restore_sanity(sanity_delta)} Cordura")
     elif sanity_delta < 0:
         player.lose_sanity(abs(sanity_delta))
         msgs.append(f"{sanity_delta} Cordura")
@@ -169,18 +208,11 @@ def use_item(player, item_id: str) -> tuple[bool, str]:
         player.gold += gold_delta
         msgs.append(f"+{gold_delta} oro" if gold_delta > 0 else f"{gold_delta} oro")
 
-    # Flags
     for flag, val in effect.get("set_flags", {}).items():
         player.set_flag(flag, val)
 
-    # Eliminar estados alterados (solo fuera de combate por ahora)
-    remove_status = effect.get("remove_status")
-
-    # Eliminar item del inventario tras uso
     player.inventory.remove(item_id)
-
-    result_str = "  ·  ".join(msgs) if msgs else "Sin efecto."
-    return True, f"Usas [{item['name']}] → {result_str}"
+    return True, f"Usas [{item['name']}] → {'  ·  '.join(msgs) if msgs else 'Sin efecto.'}"
 
 
 # ------------------------------------------------------------------ #

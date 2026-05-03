@@ -287,8 +287,8 @@ ENEMIES: list[dict] = [
         "elite": False,
         "boss": True,
         "hp": 55,
-        "damage_min": 8,
-        "damage_max": 14,
+        "damage_min": 5,
+        "damage_max": 9,
         "ascii_art": """\
   ___________
  /  ●     ●  \\
@@ -335,6 +335,235 @@ ENEMIES: list[dict] = [
         ],
         "loot_gold_min": 25,
         "loot_gold_max": 40,
+    },
+
+    # ------------------------------------------------------------------ #
+    #  NUEVOS ENEMIGOS — EXPANSIÓN 1.1                                     #
+    # ------------------------------------------------------------------ #
+
+    # El Sacerdote Corrompido — se cura a sí mismo si lo dejas respirar.
+    # Obliga al jugador a jugar agresivo, no defensivo.
+    {
+        "id": "sacerdote_corrompido",
+        "name": "Sacerdote Corrompido",
+        "flavor": "Sigue rezando. Solo que ahora no a algo bueno.",
+        "depth_min": 2,
+        "depth_max": 5,
+        "elite": False,
+        "hp": 20,
+        "damage_min": 4,
+        "damage_max": 7,
+        "ascii_art": """\
+    /\\    /\\
+   /  \\  /  \\
+  | +  \\/  + |
+  |    /\\    |
+   \\  /  \\  /
+    \\/    \\/
+     |    |""",
+        "actions": [
+            {
+                "id": "maldicion_sagrada",
+                "text": "lanza una maldición sagrada",
+                "weight": 35,
+                "dmg_mult": 1.0,
+                "sanity_dmg": 2,
+                "applies_status": "WEAKENED",
+            },
+            {
+                "id": "rezo_de_cura",
+                # Daño 0 — el engine lo interpreta, pero añadimos
+                # una flag especial para que el combat_engine lo procese
+                "text": "reza en voz alta y sus heridas se cierran",
+                "weight": 30,
+                "dmg_mult": 0.0,
+                "sanity_dmg": 1,
+                "applies_status": None,
+                "self_heal": 6,        # campo extra procesado en combat_engine
+            },
+            {
+                "id": "toque_profano",
+                "text": "te toca con dedos que queman al revés",
+                "weight": 35,
+                "dmg_mult": 1.2,
+                "sanity_dmg": 0,
+                "applies_status": "BLEEDING",
+            },
+        ],
+        "loot_gold_min": 6,
+        "loot_gold_max": 12,
+    },
+
+    # La Larva Abismal — débil al principio, escala con cada turno.
+    # El jugador que la ignora o la deja vivir mucho paga caro.
+    {
+        "id": "larva_abismal",
+        "name": "Larva Abismal",
+        "flavor": "Pequeña. Pero lleva aquí más tiempo que las piedras.",
+        "depth_min": 3,
+        "depth_max": 6,
+        "elite": False,
+        "hp": 12,
+        "damage_min": 2,
+        "damage_max": 4,
+        "ascii_art": """\
+   ~-~-~-~-~
+  ( o )( o )
+   ~-~-~-~-~
+    \\  ||  /
+     \\_||_/
+      |  |
+    ~~|  |~~""",
+        "actions": [
+            {
+                "id": "mordisco_larvario",
+                "text": "muerde con mandíbulas que no deberían existir",
+                "weight": 40,
+                "dmg_mult": 1.0,
+                "sanity_dmg": 0,
+                "applies_status": None,
+            },
+            {
+                "id": "segregacion",
+                "text": "segrega un líquido que corroe la armadura",
+                "weight": 35,
+                "dmg_mult": 0.7,
+                "sanity_dmg": 0,
+                "applies_status": "WEAKENED",
+            },
+            {
+                "id": "pulso_abismal",
+                "text": "emite un pulso del abismo — crece con cada turno",
+                "weight": 25,
+                "dmg_mult": 0.0,
+                "sanity_dmg": 3,
+                "applies_status": "TERRIFIED",
+                # Flag especial: el combat_engine aumenta daño base con los turnos
+                "scales_with_turns": True,
+            },
+        ],
+        "loot_gold_min": 3,
+        "loot_gold_max": 7,
+    },
+
+    # El Doppelgänger — élite que copia tus stats. Ganarle requiere
+    # una estrategia distinta según tu clase.
+    {
+        "id": "doppelganger",
+        "name": "El Doppelgänger",
+        "flavor": "Tiene tu cara. La tuya de hace años, cuando aún creías en algo.",
+        "depth_min": 3,
+        "depth_max": 6,
+        "elite": True,
+        "hp": 25,
+        "damage_min": 5,
+        "damage_max": 10,
+        "ascii_art": """\
+   ┌───────┐
+   │ ◈   ◈ │
+   │   ─   │
+   │ \\___/ │
+   └───────┘
+     │   │
+    _│_  _│_""",
+        "actions": [
+            {
+                "id": "reflejo_de_golpe",
+                "text": "replica tu propio movimiento contra ti",
+                "weight": 35,
+                "dmg_mult": 1.1,
+                "sanity_dmg": 2,
+                "applies_status": None,
+            },
+            {
+                "id": "robar_fuerza",
+                "text": "te roba momentáneamente tu fuerza",
+                "weight": 30,
+                "dmg_mult": 0.8,
+                "sanity_dmg": 0,
+                "applies_status": "WEAKENED",
+            },
+            {
+                "id": "grito_de_identidad",
+                "text": "grita tu nombre con tu propia voz",
+                "weight": 20,
+                "dmg_mult": 0.0,
+                "sanity_dmg": 5,
+                "applies_status": "STUNNED",
+            },
+            {
+                "id": "golpe_especular",
+                "text": "ejecuta tu habilidad de clase contra ti",
+                "weight": 15,
+                "dmg_mult": 1.4,
+                "sanity_dmg": 3,
+                "applies_status": "MARKED",
+            },
+        ],
+        "loot_gold_min": 15,
+        "loot_gold_max": 22,
+    },
+
+    # El Centinela Olvidado — boss alternativo. No ataca dos veces seguidas
+    # del mismo modo. Patrón semi-predecible que recompensa observar.
+    {
+        "id": "centinela_olvidado",
+        "name": "El Centinela Olvidado",
+        "flavor": (
+            "Lleva aquí desde antes de que existiera el dungeon. "
+            "No sabe qué guarda. Solo sabe guardar."
+        ),
+        "depth_min": 3,
+        "depth_max": 6,
+        "elite": False,
+        "boss": True,
+        "hp": 48,
+        "damage_min": 4,
+        "damage_max": 8,
+        "ascii_art": """\
+  ╔═══════╗
+  ║ ▓   ▓ ║
+  ║   ═   ║
+  ║ ╔═══╗ ║
+  ╚═╝   ╚═╝
+    ║   ║
+   ═╩═ ═╩═""",
+        "actions": [
+            {
+                "id": "lanza_de_centinela",
+                "text": "atraviesa con la lanza que nunca se oxida",
+                "weight": 30,
+                "dmg_mult": 1.2,
+                "sanity_dmg": 0,
+                "applies_status": "BLEEDING",
+            },
+            {
+                "id": "escudo_del_olvido",
+                "text": "golpea con el escudo — la vibración paraliza",
+                "weight": 25,
+                "dmg_mult": 0.9,
+                "sanity_dmg": 0,
+                "applies_status": "STUNNED",
+            },
+            {
+                "id": "grito_de_alerta",
+                "text": "lanza el grito de alerta que nadie oirá",
+                "weight": 20,
+                "dmg_mult": 0.2,
+                "sanity_dmg": 4,
+                "applies_status": "TERRIFIED",
+            },
+            {
+                "id": "ejecucion_protocolar",
+                "text": "ejecuta el protocolo de eliminación de intrusos",
+                "weight": 25,
+                "dmg_mult": 1.3,
+                "sanity_dmg": 1,
+                "applies_status": None,
+            },
+        ],
+        "loot_gold_min": 20,
+        "loot_gold_max": 35,
     },
 ]
 
